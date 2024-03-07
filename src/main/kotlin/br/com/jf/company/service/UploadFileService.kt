@@ -1,6 +1,6 @@
 package br.com.jf.company.service
 
-import br.com.jf.company.dto.FileDTO
+import br.com.jf.company.dto.DocumentDTO
 import br.com.jf.company.execeptions.RequiredObjectIsNullException
 import br.com.jf.company.execeptions.ResourceNotFoundException
 import br.com.jf.company.repository.FileRepository
@@ -25,12 +25,12 @@ class UploadFileService {
     fun findCategoryById(id: Long): FileVO {
         val entity = fileRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("No records found for this ID!") }
-        val company: FileDTO = parseObject(entity, FileDTO::class.java)
+        val company: DocumentDTO = parseObject(entity, DocumentDTO::class.java)
         return parseObject(company, FileVO::class.java)
     }
 
     fun createNewFile(fileVO: FileVO): FileVO {
-        val entity: FileDTO = parseObject(fileVO, FileDTO::class.java)
+        val entity: DocumentDTO = parseObject(fileVO, DocumentDTO::class.java)
         return parseObject(fileRepository.save(entity), FileVO::class.java)
     }
 
