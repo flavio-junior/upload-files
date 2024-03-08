@@ -3,9 +3,11 @@ package br.com.jf.company.service
 import br.com.jf.company.execeptions.AWSClientException
 import br.com.jf.company.execeptions.AWSServiceException
 import br.com.jf.company.execeptions.IllegalArgumentCustomException
+import br.com.jf.company.execeptions.ResourceNotFoundException
 import com.amazonaws.AmazonClientException
 import com.amazonaws.AmazonServiceException
 import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.amazonaws.services.s3.model.ObjectMetadata
 import org.apache.commons.io.FilenameUtils
 import org.joda.time.Instant
@@ -17,8 +19,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
 import java.io.InputStream
+import java.lang.Exception
 import java.net.URL
-
 
 @Service
 class S3Service {
@@ -56,4 +58,13 @@ class S3Service {
         logger.info("Upload finish")
         return s3client.getUrl(bucketName, fileName)
     }
+
+    fun deleteFile(url: String) {
+        try {
+            s3client.deleteObject(DeleteObjectRequest(bucketName, url))
+        } catch (e: Exception) {
+            throw ResourceNotFoundException(exception = e.message)
+        }
+    }
+
 }

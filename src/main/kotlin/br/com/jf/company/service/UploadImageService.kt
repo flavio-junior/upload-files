@@ -21,4 +21,7 @@ class UploadImageService {
         return parseObject(urlDTO, UriVO::class.java)
     }
 
+    fun deleteFile(url: String) {
+        s3Service.deleteFile(url = url)
+    }
 }
