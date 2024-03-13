@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
 import java.io.InputStream
-import java.lang.Exception
 import java.net.URL
+
 
 @Service
 class S3Service {
@@ -33,14 +33,14 @@ class S3Service {
     @Value("\${s3.bucket}")
     private val bucketName: String? = null
 
-    fun uploadFile(file: MultipartFile): URL {
+    fun processFile(file: MultipartFile): URL {
         try {
             val originalName = file.originalFilename
             val extension = FilenameUtils.getExtension(originalName)
             val fileName: String = Instant.now().toDate().time.toString() + "." + extension
             val inputStream: InputStream = file.inputStream
             val contentType: String? = file.contentType
-            return uploadFile(inputStream, fileName, contentType)
+            return processFile(inputStream, fileName, contentType)
         } catch (e: AmazonServiceException) {
             throw AWSServiceException(e.message)
         } catch (e: AmazonClientException) {
@@ -50,13 +50,20 @@ class S3Service {
         }
     }
 
-    private fun uploadFile(inputStream: InputStream, fileName: String, contentType: String?): URL {
+    private fun processFile(inputStream: InputStream, fileName: String, contentType: String?): URL {
         val objectMetadata = ObjectMetadata()
         objectMetadata.contentType = contentType
         logger.info("Upload start")
         s3client.putObject(bucketName, fileName, inputStream, objectMetadata)
         logger.info("Upload finish")
         return s3client.getUrl(bucketName, fileName)
+    }
+
+    fun updateFile(url: String, multipartFile: MultipartFile): URL {
+        if (s3client.doesObjectExist(bucketName, url)) {
+            deleteFile(url)
+        }
+       return processFile(multipartFile)
     }
 
     fun deleteFile(url: String) {
@@ -66,5 +73,4 @@ class S3Service {
             throw ResourceNotFoundException(exception = e.message)
         }
     }
-
 }
